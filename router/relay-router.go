@@ -117,6 +117,12 @@ func setClaudeRouter(router *gin.Engine) {
 }
 
 func setGeminiRouter(router *gin.Engine) {
+  modelsRouter := router.Group("/gemini/:version/models")
+	modelsRouter.Use(middleware.OpenaiAuth(), middleware.Distribute())
+	{
+		modelsRouter.GET("", relay.ListModelsByToken)
+		modelsRouter.GET("/:model", relay.RetrieveModel)
+	}
 	relayGeminiRouter := router.Group("/gemini")
 	relayGeminiRouter.Use(middleware.APIEnabled("gemini"), middleware.RelayGeminiPanicRecover(), middleware.GeminiAuth(), middleware.Distribute(), middleware.DynamicRedisRateLimiter())
 	{
